@@ -136,7 +136,7 @@ export const RiderTripOverview = ({
     )
   }
 
-  if (trip.rideFares.length >= 0 && !trip.tripID) {
+  if (trip.rideFares && trip.rideFares.length >= 0 && !trip.tripID) {
     return (
       <DriverList
         trip={trip}
@@ -148,7 +148,7 @@ export const RiderTripOverview = ({
 
   return (
     <Card className="w-full md:max-w-[500px] z-[9999] flex-[0.3]">
-      No trip, please refresh the page
+      No trip ride fares, please refresh the page
     </Card>
   )
 }
