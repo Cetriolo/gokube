@@ -23,11 +23,11 @@ export function DriverPackageSelector({ onSelect }: DriverPackageSelectorProps) 
               onClick={() => onSelect(slug as CarPackageSlug)}
             >
               <div className="p-1.5 sm:p-2 bg-gray-100 rounded-lg">
-                {meta.icon}
+                {meta?.icon}
               </div>
               <div>
-                <h3 className="font-medium text-sm sm:text-base">{meta.name}</h3>
-                <p className="text-xs sm:text-sm text-gray-500">{meta.description}</p>
+                <h3 className="font-medium text-sm sm:text-base">{meta?.name}</h3>
+                <p className="text-xs sm:text-sm text-gray-500">{meta?.description}</p>
               </div>
             </div>
           ))}
