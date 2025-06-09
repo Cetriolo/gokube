@@ -5,6 +5,7 @@ export interface Trip {
     selectedFare: RouteFare;
     route: Route;
     driver?: Driver;
+    trip: Trip;
 }
 
 export interface RequestRideProps {
