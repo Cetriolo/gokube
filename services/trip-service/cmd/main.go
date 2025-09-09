@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-
 	"log"
 
 	"ride-sharing/services/trip-service/internal/domain"

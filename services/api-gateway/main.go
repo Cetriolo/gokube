@@ -8,14 +8,15 @@ import (
 )
 
 var (
-	httpAddr = env.GetString("HTTP_ADDR", ":8081")
+	httpAddr = env.GetString("GATEWAY_HTTP_ADDR", ":8081")
 )
 
 func main() {
 	log.Println("Starting API Gateway")
 
 	mux := http.NewServeMux()
-
+	log.Println("Listening on " + httpAddr)
+	log.Println("Calling handleTripPreview")
 	mux.HandleFunc("POST /trip/preview", handleTripPreview)
 
 	server := &http.Server{

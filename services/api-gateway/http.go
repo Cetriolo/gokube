@@ -9,6 +9,8 @@ import (
 )
 
 func handleTripPreview(w http.ResponseWriter, r *http.Request) {
+	log.Println("Handling trip preview")
+
 	var reqBody previewTripRequest
 	if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
 		http.Error(w, "failed to parse JSON data", http.StatusBadRequest)
