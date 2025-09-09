@@ -2,11 +2,11 @@ package grpc
 
 import (
 	"context"
+
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 
-	"log"
 	"ride-sharing/services/trip-service/internal/domain"
 	pb "ride-sharing/shared/proto/trip"
 	"ride-sharing/shared/types"
@@ -39,15 +39,20 @@ func (h *gRPCHandler) PreviewTrip(ctx context.Context, req *pb.PreviewTripReques
 		Longitude: pickup.GetLongitude()}
 	destCoord := &types.Coordinate{Latitude: destination.GetLatitude(),
 		Longitude: destination.GetLongitude()}
-
+	userID := req.GetUserID()
 	t, err := h.service.GetRoute(ctx, pickUpCoord, destCoord)
 	if err != nil {
-		log.Printf("GetRoute err: %v", err)
 		return nil, status.Errorf(codes.Internal, "GetRoute err: %v", err)
+	}
+
+	estimatedFares := h.service.EstimatePackagesPriceWithRoute(t)
+	fares, err := h.service.GenerateTripFares(ctx, estimatedFares, userID)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "GenerateTripFares err: %v", err)
 	}
 
 	return &pb.PreviewTripResponse{
 		Route:     t.ToProto(),
-		RideFares: []*pb.RideFare{},
+		RideFares: domain.ToRidesFaresProto(fares),
 	}, nil
 }
