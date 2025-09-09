@@ -1,8 +1,13 @@
 package main
 
 import (
+	"context"
 	"log"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	"ride-sharing/shared/env"
 )
@@ -15,16 +20,33 @@ func main() {
 	log.Println("Starting API Gateway")
 
 	mux := http.NewServeMux()
-	log.Println("Listening on " + httpAddr)
-	log.Println("Calling handleTripPreview")
 	mux.HandleFunc("POST /trip/preview", handleTripPreview)
 
 	server := &http.Server{
 		Addr:    httpAddr,
 		Handler: mux,
 	}
+	serverErrors := make(chan error, 1)
 
-	if err := server.ListenAndServe(); err != nil {
-		log.Printf("Failed to start server: %v", err)
+	go func() {
+		log.Printf("Listening on %s\n", httpAddr)
+		serverErrors <- server.ListenAndServe()
+	}()
+	shutdown := make(chan os.Signal, 1)
+	signal.Notify(shutdown, os.Interrupt, syscall.SIGTERM)
+
+	select {
+	case err := <-serverErrors:
+		log.Fatalf("server error: %v", err)
+	case sig := <-shutdown:
+		log.Printf("server shutdown due to signal: %v", sig)
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		if err := server.Shutdown(ctx); err != nil {
+			log.Printf("graceful shutdown did not complete in time: %v", err)
+			if err := server.Close(); err != nil {
+				log.Printf("could not stop server gracefully: %v", err)
+			}
+		}
 	}
 }
