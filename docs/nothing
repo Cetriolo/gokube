@@ -16,3 +16,6 @@ gcloud auth configure-docker europe-west1-docker.pkg.dev
 
 
 kubectl config use-context minikube
+
+#Dashboard on windows
+minikube service rabbitmq --url
