@@ -1,0 +1,18 @@
+europe-west1-docker.pkg.dev/trans-array-471820-c1/ride-sharing/api-gateway
+
+
+
+
+docker build -t europe-west1-docker.pkg.dev/trans-array-471820-c1/ride-sharing/api-gateway:latest --platform linux/amd64 -f infra/production/docker/api-gateway.Dockerfile .
+
+# Build the Driver service
+#docker build -t europe-west1-docker.pkg.dev/trans-array-471820-c1/ride-sharing/trip-service:latest --platform linux/amd64 -f infra/production/docker/driver-service.Dockerfile .
+
+# Build the Trip service
+docker build -t europe-west1-docker.pkg.dev/trans-array-471820-c1/ride-sharing/trip-service:latest --platform linux/amd64 -f infra/production/docker/trip-service.Dockerfile .
+
+##FOR ACTTIVATING GCLOUD DOCKER REGISTRY
+gcloud auth configure-docker europe-west1-docker.pkg.dev
+
+
+kubectl config use-context minikube

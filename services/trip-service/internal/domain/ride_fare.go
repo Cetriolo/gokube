@@ -1,6 +1,7 @@
 package domain
 
 import (
+	tripTypes "ride-sharing/services/trip-service/pkg/types"
 	pb "ride-sharing/shared/proto/trip"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,6 +12,7 @@ type RideFareModel struct {
 	UserID            string
 	PackageSlug       string // van van , luxury etc.
 	TotalPriceInCents float64
+	Route             *tripTypes.OsrmApiResponse
 }
 
 func (r *RideFareModel) toProto() *pb.RideFare {
