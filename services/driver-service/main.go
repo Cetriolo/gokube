@@ -6,19 +6,14 @@ import (
 	"net"
 	"os"
 	"os/signal"
-	"ride-sharing/services/trip-service/internal/infrastructure/grpc"
-	"ride-sharing/services/trip-service/internal/infrastructure/repository"
-	"ride-sharing/services/trip-service/internal/service"
 	"syscall"
 
 	grpcserver "google.golang.org/grpc"
 )
 
-var GrpcAddr = ":9093"
+var GrpcAddr = ":9092"
 
 func main() {
-	inmemRepo := repository.NewInmemRepository()
-	svc := service.NewService(inmemRepo)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -38,9 +33,7 @@ func main() {
 
 	grpcServer := grpcserver.NewServer()
 
-	grpc.NewgRPCHandler(grpcServer, svc)
-
-	log.Println("Starting gRPC server Trip service on port %s " + lis.Addr().String())
+	log.Println("Starting gRPC server Driver service on port %s " + lis.Addr().String())
 
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
@@ -49,7 +42,7 @@ func main() {
 		}
 	}()
 	<-ctx.Done()
-	log.Println("Shutting down gRPC server Trip service")
+	log.Println("Shutting down gRPC server Driver service")
 	grpcServer.GracefulStop()
-	log.Println("gRPC server Trip service stopped")
+	log.Println("gRPC server Driver service stopped")
 }
