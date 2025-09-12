@@ -2,6 +2,7 @@ package grpc
 
 import (
 	"context"
+	"ride-sharing/services/trip-service/internal/infrastructure/events"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -14,13 +15,15 @@ import (
 
 type gRPCHandler struct {
 	pb.UnimplementedTripServiceServer
-	service domain.TripService
+	service   domain.TripService
+	publisher *events.TripEventPublisher
 }
 
-func NewgRPCHandler(server *grpc.Server, service domain.TripService) *gRPCHandler {
+func NewgRPCHandler(server *grpc.Server, service domain.TripService, publisher *events.TripEventPublisher) *gRPCHandler {
 
 	handler := &gRPCHandler{
-		service: service,
+		service:   service,
+		publisher: publisher,
 	}
 	pb.RegisterTripServiceServer(server, handler)
 	return handler
@@ -31,12 +34,16 @@ func (h *gRPCHandler) CreateTrip(ctx context.Context, req *pb.CreateTripRequest)
 	userID := req.GetUserID()
 	rideFare, err := h.service.GetAndValidateFare(ctx, fareID, userID)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "faile to validate fare: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to validate fare: %v", err)
 	}
 
 	trip, err := h.service.CreateTrip(ctx, rideFare)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "faile to create trip: %v", err)
+		return nil, status.Errorf(codes.Internal, "failed to create trip: %v", err)
+	}
+
+	if err := h.publisher.PublishTripCreated(ctx); err != nil {
+		return nil, status.Errorf(codes.Internal, "failed to publish trip created event: %v", err)
 	}
 
 	return &pb.CreateTripResponse{
