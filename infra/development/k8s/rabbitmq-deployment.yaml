@@ -25,6 +25,19 @@ spec:
             limits:
               memory: "512Mi"
               cpu: "250m"
+          readinessProbe:
+            exec:
+              command: [ "rabbitmq-diagnostics", "check_running" ]
+            initialDelaySeconds: 20
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 3
+          livenessProbe:
+            exec:
+              command: [ "rabbitmq-diagnostics", "check_running" ]
+            initialDelaySeconds: 60
+            periodSeconds: 30
+            timeoutSeconds: 15
           env:
             - name: RABBITMQ_DEFAULT_USER
               valueFrom:
