@@ -17,8 +17,8 @@ func NewTripConsumer(rabbitmq *messaging.RabbitMQ) *tripConsumer {
 }
 
 func (c *tripConsumer) Listen() error {
-	return c.rabbitmq.ConsumeMessages("hello", func(ctx context.Context, d amqp.Delivery) error {
-		log.Printf("Received a message: %s", d.Body)
+	return c.rabbitmq.ConsumeMessages("hello", func(ctx context.Context, msg amqp.Delivery) error {
+		log.Printf("Received a message: %s", msg.Body)
 		return nil
 	})
 }
