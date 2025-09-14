@@ -2,7 +2,9 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"log"
+	"ride-sharing/shared/contracts"
 	"ride-sharing/shared/messaging"
 
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -17,8 +19,21 @@ func NewTripConsumer(rabbitmq *messaging.RabbitMQ) *tripConsumer {
 }
 
 func (c *tripConsumer) Listen() error {
-	return c.rabbitmq.ConsumeMessages("hello", func(ctx context.Context, msg amqp.Delivery) error {
-		log.Printf("Received a message: %s", msg.Body)
+	return c.rabbitmq.ConsumeMessages(messaging.FindAvaiableDriversQueue, func(ctx context.Context, msg amqp.Delivery) error {
+		var tripEvent contracts.AmqpMessage
+		if err := json.Unmarshal(msg.Body, &tripEvent); err != nil {
+			log.Println("Failed to unmarshal message:", err)
+			return err
+		}
+
+		var payload messaging.TripEventData
+
+		if err := json.Unmarshal(tripEvent.Data, &payload); err != nil {
+			log.Println("Failed to unmarshal message:", err)
+			return err
+		}
+
+		log.Printf("Received a message: %+v", payload)
 		return nil
 	})
 }
